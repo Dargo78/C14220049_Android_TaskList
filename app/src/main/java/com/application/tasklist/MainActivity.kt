@@ -2,6 +2,7 @@ package com.application.tasklist
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,11 +18,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class MainActivity : AppCompatActivity() {
     private var arTasks = arrayListOf<Task>()
     private lateinit var rvTask: RecyclerView
-    private val REQUEST_CODE_NEW_TASK = 1
+
+    lateinit var sp : SharedPreferences
 
     private val addTaskLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -105,6 +109,25 @@ class MainActivity : AppCompatActivity() {
                 showTasks()
             }
 
+            override fun saveTask(pos: Int) {
+                val gson = Gson()
+                val editor = sp.edit()
+
+                val json = gson.toJson(arTasks[pos])
+                editor.putString("spTask", json)
+                editor.apply()
+
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Success")
+                    .setMessage("Successfully saved " + arTasks[pos].name + " data")
+                    .setPositiveButton(
+                        "Ok",
+                        DialogInterface.OnClickListener { dialog, which ->
+                            dialog.cancel()
+                        }
+                    ).show()
+            }
+
         })
     }
 
@@ -118,8 +141,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val addTaskButton = findViewById<Button>(R.id.btnAdd)
+        sp = getSharedPreferences("dataSP", MODE_PRIVATE)
+        val gson = Gson()
+        val spValue = sp.getString("spTask", null)
 
+        if (spValue != null) {
+            val task = gson.fromJson(spValue, Task::class.java)
+
+            arTasks.add(task)
+        }
+
+        val addTaskButton = findViewById<Button>(R.id.btnAdd)
         addTaskButton.setOnClickListener {
             val intent = Intent(this, AddTaskActivity::class.java)
             addTaskLauncher.launch(intent)

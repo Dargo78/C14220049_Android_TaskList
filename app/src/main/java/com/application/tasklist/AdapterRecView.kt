@@ -17,6 +17,7 @@ class AdapterRecView (private val listTasks: ArrayList<Task>) : RecyclerView
         var delButton = itemView.findViewById<Button>(R.id.btnDelete)
         var editButton = itemView.findViewById<Button>(R.id.btnEdit)
         var actionButton = itemView.findViewById<Button>(R.id.btnAction)
+        var saveButton = itemView.findViewById<Button>(R.id.btnSave)
     }
 
     private lateinit var onItemClickCallback: OnItemClickCallback
@@ -25,6 +26,7 @@ class AdapterRecView (private val listTasks: ArrayList<Task>) : RecyclerView
         fun delTask(pos: Int)
         fun editTask(pos: Int)
         fun startTask(pos: Int)
+        fun saveTask(pos: Int)
     }
 
     fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
@@ -69,6 +71,10 @@ class AdapterRecView (private val listTasks: ArrayList<Task>) : RecyclerView
 
         holder.actionButton.setOnClickListener {
             onItemClickCallback.startTask(position)
+        }
+
+        holder.saveButton.setOnClickListener {
+            onItemClickCallback.saveTask(position)
         }
     }
 }
